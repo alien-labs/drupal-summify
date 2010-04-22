@@ -1,0 +1,88 @@
+<?php
+// $Id$
+/**
+ * @file summify.module
+ * Summify module
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function summify_menu() { 
+  // This is the minimum information you can provide for a menu item.
+  $items['admin/settings/summify'] = array(
+    'title' => 'Summify',
+    'page callback' => 'drupal_get_form', 
+    'page arguments' => array('summify_manage_settings'),
+    'access arguments' => array('administer summify'),
+   );
+  return $items;
+}
+
+function summify_manage_settings() {
+  $form['summify_client_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Summify script client ID'),
+    '#description' => '',
+    '#value' => variable_get('summify_client_id', 'default'),
+  );
+  $form['summify_desktop'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable the desktop version of the Summify'),
+    '#value' => variable_get('summify_desktop', 0),
+  );
+  $form['summify_iphone'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable the iPhone version of the Summify'),
+    '#value' => variable_get('summify_iphone', 0),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
+  return $form; 
+}
+ 
+function summify_manage_settings_submit($form, &$form_state) {
+  variable_set('summify_client_id', $form_state['clicked_button']['#post']['summify_client_id']);
+  variable_set('summify_desktop', $form_state['clicked_button']['#post']['summify_desktop']);
+  variable_set('summify_iphone', $form_state['clicked_button']['#post']['summify_iphone']);
+  drupal_set_message('The Summify options have been saved.');  
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function summify_perm() {
+  return array('administer summify');
+}
+
+function summify_init() {
+  $summify_client_id = variable_get('summify_client_id', 'default');
+  $summify_desktop_version = variable_get('summify_desktop', 0);
+  $summify_iphone_version = variable_get('summify_iphone', 0);
+
+  if ($summify_desktop_version == 0 && $summify_iphone_version == 1) {
+    $summify_version = 'iphone';
+  }
+  else if ($summify_desktop_version == 1 && $summify_iphone_version == 1) {
+    $summify_version = 'client';
+  }
+  else if ($summify_desktop_version == 1 && $summify_iphone_version == 0) {
+    $summify_version = 'desktop';
+  }
+  else {
+     $summify_version = '';
+  }
+  
+  if ($summify_client_id != 'default' && $summify_version != '') {
+    $summify_html = '<script text="text/javascript" src="http://summify.com/client/v1/' . 
+      $summify_client_id . '/' . $summify_version . '.js"></script>';
+    drupal_set_html_head($summify_html);
+    $variables['head'] = drupal_get_html_head();
+  }
+  else {
+    return;
+  }
+}

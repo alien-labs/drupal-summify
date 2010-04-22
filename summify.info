@@ -1,0 +1,4 @@
+; $Id$
+name = Summify
+description = Inserts the JavaScript code into the theme
+core = 6.x
