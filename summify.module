@@ -19,11 +19,12 @@ function summify_menu() {
 }
 
 function summify_manage_settings() {
+  $form = array();
   $form['summify_username'] = array(
     '#type' => 'textfield',
     '#title' => t('Summify username'),
-    '#description' => 'Please enter your Summify username. You can sign up for an username at http://summify.com/',
-    '#value' => variable_get('summify_username', ''),
+    '#description' => t('Please enter your Summify username. You can sign up for an username at') . ' http://summify.com/',
+    '#default_value' => variable_get('summify_username', ''),
   );
   $form['submit'] = array(
     '#type' => 'submit',
@@ -32,9 +33,46 @@ function summify_manage_settings() {
   return $form; 
 }
  
+function summify_manage_settings_validate($form, &$form_state) {
+  $username = $form_state['clicked_button']['#post']['summify_username'];
+  if (trim($username) == '') {
+    form_set_error('summify_username', t('Please enter your Summify username.'));
+    return;
+  }
+  $client_id = summify_get_default_client_id($username);
+  if (!$client_id) {
+    form_set_error('summify_username', t('Summify.com does not recognize this username.'));
+  }
+}
+
 function summify_manage_settings_submit($form, &$form_state) {
-  variable_set('summify_username', $form_state['clicked_button']['#post']['summify_username']);
-  drupal_set_message('The Summify options have been saved.');  
+  $username = $form_state['clicked_button']['#post']['summify_username'];
+  $client_id = summify_get_default_client_id($username);
+  variable_set('summify_username', $username);
+  variable_set('summify_client_id', $client_id);
+  drupal_set_message(t('The Summify options have been saved. Your client ID is ') . $client_id);
+}
+
+/**
+ * Call the Summify endpoint to obtain the default client_id for given
+ * username.
+ *
+ * Return client_id or FALSE if not found.
+ */
+function summify_get_default_client_id($username) {
+  $curl = curl_init(); 
+  $request_url = "http://localhost:8001/user-api/default_client_id/" . urlencode($username);
+  curl_setopt($curl, CURLOPT_URL, $request_url);
+  // Return the transfer as a string 
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+  $response = curl_exec($curl);
+  $response_info = curl_getinfo($curl);
+  curl_close($curl);
+  if ($response_info['http_code'] != 200) {
+    return FALSE;
+  } else {
+    return $response;
+  }
 }
 
 /**
