@@ -5,6 +5,20 @@
  * Summify module
  */
 
+define('SUMMIFY_HOME', 'http://summify.com');
+
+/**
+ * Implementation of hook_help().
+ */
+function summify_help($path, $arg) {
+  switch ($path) {
+    case 'admin/settings/summify':
+      $output = '<p>'. t("In order to enable Summify for your Drupal website you need to specify your Summify username. (<a href=\"" . SUMMIFY_HOME . "/register/\">Register here</a> if you haven't already.)") .'</p>';
+      $output .= '<p>'. t("Once you specify your Summify username you can tweak and configure the Summify widget by visiting the <a href=\"" . SUMMIFY_HOME. "/dashboard/\">Summify dashboard</a>.") .'</p>';
+      return $output;
+  }
+}
+
 /**
  * Implementation of hook_menu().
  */
@@ -23,7 +37,7 @@ function summify_manage_settings() {
   $form['summify_username'] = array(
     '#type' => 'textfield',
     '#title' => t('Summify username'),
-    '#description' => t('Please enter your Summify username. You can sign up for an username at') . ' http://summify.com/',
+    '#description' => t('Please enter your Summify username.'),
     '#default_value' => variable_get('summify_username', ''),
   );
   $form['submit'] = array(
@@ -41,7 +55,7 @@ function summify_manage_settings_validate($form, &$form_state) {
   }
   $client_id = summify_get_default_client_id($username);
   if (!$client_id) {
-    form_set_error('summify_username', t('Summify.com does not recognize this username.'));
+    form_set_error('summify_username', SUMMIFY_HOME . ' ' .t('does not recognize this username.'));
   }
 }
 
@@ -61,7 +75,7 @@ function summify_manage_settings_submit($form, &$form_state) {
  */
 function summify_get_default_client_id($username) {
   $curl = curl_init(); 
-  $request_url = "http://localhost:8001/user-api/default_client_id/" . urlencode($username);
+  $request_url = SUMMIFY_HOME . "/user-api/default_client_id/" . urlencode($username);
   curl_setopt($curl, CURLOPT_URL, $request_url);
   // Return the transfer as a string 
   curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -86,11 +100,11 @@ function summify_perm() {
  * Implementation of hook_footer().
  */
 function summify_footer($main = 0) {
-  $summify_username = variable_get('summify_username', '');
-  if ($summify_username != '') {
-    $client_id = '2100ad';
-    $script_src = "http://summify.com/client/v1/{$client_id}/client.js";
-    $script_tag = "<script text=\"text/javascript\" src=\"{$script_src}\"></script>\n";
+  $username = variable_get('summify_username', '');
+  $client_id = variable_get('summify_client_id', '');
+  if ($username && $client_id) {
+    $script_src = SUMMIFY_HOME . "/client/v1/" . urlencode($client_id) . "/client.js";
+    $script_tag = "<script text=\"text/javascript\" src=\"". htmlentities($script_src) . "\"></script>\n";
     return $script_tag;
   }
   return '';
