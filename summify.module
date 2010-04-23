@@ -127,7 +127,7 @@ function summify_manage_settings_submit($form, &$form_state) {
  */
 function _summify_get_default_client_id($username) {
   $curl = curl_init(); 
-  $request_url = SUMMIFY_HOME . "/user-api/default_client_id/" . urlencode($username);
+  $request_url = SUMMIFY_HOME . "/user-api/default-client-id/" . urlencode($username);
   curl_setopt($curl, CURLOPT_URL, $request_url);
   // Return the transfer as a string 
   curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
