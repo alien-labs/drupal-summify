@@ -1,4 +1,21 @@
-drupal-summify
-
 This is a Drupal module that installs the Summify.com link summarization and
-preview widget.
+preview widget. The module inserts a remote <script> tag at the end of the
+page.
+
+You need to register for a Summify username at http://summify.com/register/
+
+AUTHORS
+
+    Boris Mann
+        - Drupal    http://drupal.org/user/4426
+        - Twitter   http://twitter.com/bmann
+        - Website   http://bmannconsulting.com
+    Richard Eriksson
+        - Drupal    http://drupal.org/user/8791
+        - Twitter   http://twitter.com/sillygwailo
+        - Website   http://justagwailo.com
+    The Summify Team
+        - Drupal    http://drupal.org/user/764978
+        - Twitter   http://twitter.com/summify
+        - Website   http://summify.com
+
