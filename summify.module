@@ -88,7 +88,11 @@ function summify_manage_settings(&$form_state) {
       '#wysiwyg' => FALSE,
     );
   }
-  return system_settings_form($form);
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Test & Save Configuration'),
+  );
+  return $form;
 }
 
 function summify_manage_settings_validate($form, &$form_state) {
@@ -99,19 +103,20 @@ function summify_manage_settings_validate($form, &$form_state) {
   }
   $client_id = _summify_get_default_client_id($username);
   if (!$client_id) {
-    form_set_error('summify_username', SUMMIFY_HOME . ' ' .t('does not recognize this username.'));
+    form_set_error('summify_username', t('@summify_home does not recognize this username.', array('@summify_home' => SUMMIFY_HOME)));
   }
 }
 
 function summify_manage_settings_submit($form, &$form_state) {
   $username = $form_state['clicked_button']['#post']['summify_username'];
-  /*$visibility = $form_state['clicked_button']['#post']['summify_visibility'];
-  $pages = $form_state['clicked_button']['#post']['summify_pages'];*/
+  $visibility = $form_state['clicked_button']['#post']['summify_visibility'];
+  $pages = $form_state['clicked_button']['#post']['summify_pages'];
   $client_id = _summify_get_default_client_id($username);
-  //variable_set('summify_username', $username);
-  //variable_set('summify_client_id', $client_id);
+  variable_set('summify_username', $username);
   variable_set('summify_client_id', $client_id);
-  drupal_set_message(t('The Summify options have been saved. Your client ID is ') . $client_id);
+  variable_set('summify_visibility', $visibility);
+  variable_set('summify_pages', $pages);
+  drupal_set_message(t('The Summify options have been saved. Your client ID is @client_id.', array('@client_id' => $client_id)));
 }
 
 /**
@@ -145,6 +150,7 @@ function summify_perm() {
 
 /**
  * Implementation of hook_footer().
+ * Insert Summify <script/> tag in page footer.
  */
 function summify_footer($main = 0) {
   $username = variable_get('summify_username', '');
@@ -186,11 +192,9 @@ function _summify_visibility_pages() {
       else {
         $page_match = drupal_eval($pages);
       }
+    } else {
+      $page_match = FALSE;
     }
-    else {
-      $page_match = TRUE;
-    }
-
   }
   return $page_match;
 }
