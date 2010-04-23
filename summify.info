@@ -1,4 +1,4 @@
 ; $Id$
 name = Summify
-description = Inserts the JavaScript code into the theme
+description = Summify link summarization and preview widget (http://summify.com)
 core = 6.x
