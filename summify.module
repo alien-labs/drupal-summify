@@ -126,18 +126,13 @@ function summify_manage_settings_submit($form, &$form_state) {
  * Return client_id or FALSE if not found.
  */
 function _summify_get_default_client_id($username) {
-  $curl = curl_init(); 
   $request_url = SUMMIFY_HOME . "/user-api/default-client-id/" . urlencode($username);
-  curl_setopt($curl, CURLOPT_URL, $request_url);
   // Return the transfer as a string 
-  curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-  $response = curl_exec($curl);
-  $response_info = curl_getinfo($curl);
-  curl_close($curl);
-  if ($response_info['http_code'] != 200) {
+  $response = drupal_http_request($request_url);
+  if ($response->code != 200) {
     return FALSE;
   } else {
-    return $response;
+    return $response->data;
   }
 }
 
@@ -157,7 +152,7 @@ function summify_footer($main = 0) {
   $client_id = variable_get('summify_client_id', '');
   if ($username && $client_id && _summify_visibility_pages()) {
     $script_src = SUMMIFY_HOME . "/client/v1/" . urlencode($client_id) . "/client.js";
-    $script_tag = "<script text=\"text/javascript\" src=\"". htmlentities($script_src) . "\"></script>\n";
+    $script_tag = "<script type=\"text/javascript\" src=\"". htmlentities($script_src) . "\"></script>\n";
     return $script_tag;
   }
   return '';
