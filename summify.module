@@ -5,9 +5,9 @@
  * Summify module
  */
 
-//define('SUMMIFY_HOME', 'http://summify.com');
-define('SUMMIFY_HOME', 'http://localhost:8001');
+define('SUMMIFY_HOME', 'http://summify.com');
 define('SUMMIFY_PERM_PHP_VIS', 'use PHP for Summify visibility');
+define('SUMMIFY_PHP_VIS_VALUE', 2);
 
 /**
  * Implementation of hook_help().
@@ -62,9 +62,9 @@ function summify_manage_settings(&$form_state) {
     '#collapsed' => TRUE,
   );
 
-  if ($visibility == 2 && !$access) {
+  if ($visibility == SUMMIFY_PHP_VIS_VALUE && !$access) {
     // User is not allowed to change visibility PHP code
-    $form['summify_visibility_settings']['summify_visibility'] = array('#type' => 'value', '#value' => 2);
+    $form['summify_visibility_settings']['summify_visibility'] = array('#type' => 'value', '#value' => SUMMIFY_PHP_VIS_VALUE);
     $form['summify_visibility_settings']['summify_pages'] = array('#type' => 'value', '#value' => $pages);
     $form['summify_visibility_settings']['#description'] = t("You don't have the required permissions to change these setting.");
   } else {
@@ -177,7 +177,7 @@ function _summify_visibility_pages() {
 
     // Match path if necessary.
     if (!empty($pages)) {
-      if ($visibility < 2) {
+      if ($visibility < SUMMIFY_PHP_VIS_VALUE) {
         $path = drupal_get_path_alias($_GET['q']);
         // Compare with the internal and path alias (if any).
         $page_match = drupal_match_path($path, $pages);
@@ -193,7 +193,7 @@ function _summify_visibility_pages() {
         $page_match = drupal_eval($pages);
       }
     } else {
-      $page_match = FALSE;
+      $page_match = ($visibility == 0);
     }
   }
   return $page_match;
