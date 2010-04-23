@@ -1,0 +1,34 @@
+<?php
+
+// $Id$
+/**
+ * @file
+ * Installation file for Summify module.
+ */
+
+function summify_install() {
+  variable_set('summify_visibility', 0);
+  // Remove tracking from all administrative pages, see http://drupal.org/node/34970.
+  $pages = array(
+    'admin',
+    'admin/*',
+    'user/*/*',
+    'node/add*',
+    'node/*/*',
+  );
+  variable_set('summify_pages', implode("\n", $pages));
+}
+
+function summify_uninstall() {
+  $variables = array(
+    'summify_client_id',
+    'summify_username',
+    'summify_visibility',
+    'summify_pages',
+  );
+  foreach ($variables as $variable) {
+    variable_del($variable);
+  }
+}
+
+?>
